@@ -313,7 +313,11 @@ InitAllocations(void)
 	game.maxentities = num_e;
 
 	globals.edicts = g_edicts;
+#ifdef TEMPORALCORTEX
+	globals.num_edicts = num_c + globals.num_loaded_bsps;
+#else
 	globals.num_edicts = num_c + 1;
+#endif
 	globals.max_edicts = num_e;
 
 	game.clients = gi.TagMalloc (num_c * sizeof(game.clients[0]), TAG_GAME);
@@ -1335,7 +1339,12 @@ ReadLevel(const char *filename)
 
 	/* wipe all the entities */
 	memset(g_edicts, 0, game.maxentities * sizeof(g_edicts[0]));
+
+#ifdef TEMPORALCORTEX
+	globals.num_edicts = maxclients->value + globals.num_loaded_bsps;
+#else
 	globals.num_edicts = maxclients->value + 1;
+#endif
 
 	/* check edict size */
 	sg_fread(&i, sizeof(i), f);
@@ -1368,7 +1377,11 @@ ReadLevel(const char *filename)
 
 		if (entnum >= globals.num_edicts)
 		{
+#ifdef TEMPORALCORTEX
+			globals.num_edicts = entnum + globals.num_loaded_bsps;
+#else
 			globals.num_edicts = entnum + 1;
+#endif
 		}
 
 		ent = &g_edicts[entnum];
@@ -1394,7 +1407,11 @@ ReadLevel(const char *filename)
 	/* mark all clients as unconnected */
 	for (i = 0; i < maxclients->value; i++)
 	{
+#ifdef TEMPORALCORTEX
+		ent = &g_edicts[i + globals.num_loaded_bsps];
+#else
 		ent = &g_edicts[i + 1];
+#endif
 		ent->client = game.clients + i;
 		ent->client->pers.connected = false;
 	}

@@ -560,7 +560,11 @@ extern cvar_t *g_machinegun_norecoil;
 extern cvar_t *g_quick_weap;
 extern cvar_t *g_swap_speed;
 
+#ifdef TEMPORALCORTEX
+#define world (&g_edicts[globals.current_bsp_index])
+#else
 #define world (&g_edicts[0])
+#endif
 
 /* item spawnflags */
 #define ITEM_TRIGGER_SPAWN 0x00000001
@@ -844,7 +848,11 @@ void ReadLevel(const char *filename);
 void WriteLevel(const char *filename);
 void ReadGame(const char *filename);
 void WriteGame(const char *filename, qboolean autosave);
+#ifdef TEMPORALCORTEX
+void SpawnEntities(const char *mapname, char *entities, const char *spawnpoint, short timeperiod);
+#else
 void SpawnEntities(const char *mapname, char *entities, const char *spawnpoint);
+#endif
 
 /* g_spawn.c */
 void ED_CallSpawn(edict_t *ent);
@@ -1142,6 +1150,10 @@ struct edict_s
 	/* common data blocks */
 	moveinfo_t moveinfo;
 	monsterinfo_t monsterinfo;
+
+#ifdef TEMPORALCORTEX
+	short bspnum;
+#endif
 };
 
 /*

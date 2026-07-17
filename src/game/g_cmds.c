@@ -1248,7 +1248,11 @@ Cmd_Say_f(edict_t *ent, qboolean team, qboolean arg0)
 		gi.cprintf(NULL, PRINT_CHAT, "%s", text);
 	}
 
+#ifdef TEMPORALCORTEX
+	for (j = globals.num_loaded_bsps; j <= game.maxclients + globals.num_loaded_bsps; j++)
+#else
 	for (j = 1; j <= game.maxclients; j++)
+#endif
 	{
 		edict_t *other;
 
@@ -1291,7 +1295,11 @@ Cmd_PlayerList_f(edict_t *ent)
 	/* connect time, ping, score, name */
 	*text = 0;
 
+#ifdef TEMPORALCORTEX
+	for (i = 0, e2 = g_edicts + globals.num_loaded_bsps; i < maxclients->value + globals.num_loaded_bsps; i++, e2++)
+#else
 	for (i = 0, e2 = g_edicts + 1; i < maxclients->value; i++, e2++)
+#endif
 	{
 		size_t text_len;
 		char st_text[80];

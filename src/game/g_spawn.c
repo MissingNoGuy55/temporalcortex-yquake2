@@ -289,7 +289,11 @@ G_FindTeams(void)
 	c = 0;
 	c2 = 0;
 
+#ifdef TEMPORALCORTEX
+	for (i = globals.num_loaded_bsps, e = g_edicts + i; i < globals.num_edicts; i++, e++)
+#else
 	for (i = 1, e = g_edicts + i; i < globals.num_edicts; i++, e++)
+#endif
 	{
 		if (!e->inuse)
 		{
@@ -311,7 +315,11 @@ G_FindTeams(void)
 		c++;
 		c2++;
 
+#ifdef TEMPORALCORTEX
+		for (j = i + globals.num_loaded_bsps, e2 = e + globals.num_loaded_bsps; j < globals.num_edicts; j++, e2++)
+#else
 		for (j = i + 1, e2 = e + 1; j < globals.num_edicts; j++, e2++)
+#endif
 		{
 			if (!e2->inuse)
 			{
@@ -347,7 +355,11 @@ G_FindTeams(void)
  * parsing textual entity definitions out of an ent file.
  */
 void
+#ifdef TEMPORALCORTEX
+SpawnEntities(const char *mapname, char *entities, const char *spawnpoint, short timeperiod)
+#else
 SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
+#endif
 {
 	edict_t *ent;
 	int inhibit;
@@ -382,7 +394,11 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 	/* set client fields on player ents */
 	for (i = 0; i < game.maxclients; i++)
 	{
+#ifdef TEMPORALCORTEX
+		g_edicts[i + globals.num_loaded_bsps].client = game.clients + i;
+#else
 		g_edicts[i + 1].client = game.clients + i;
+#endif
 	}
 
 	ent = NULL;
@@ -407,7 +423,11 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 
 		if (!ent)
 		{
+#ifdef TEMPORALCORTEX
+			ent = &g_edicts[timeperiod];
+#else
 			ent = g_edicts;
+#endif
 		}
 		else
 		{
@@ -426,7 +446,11 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 
 		/* remove things (except the world) from
 		   different skill levels or deathmatch */
+#ifdef TEMPORALCORTEX
+		if (ent < &g_edicts[globals.num_loaded_bsps])
+#else
 		if (ent != g_edicts)
+#endif
 		{
 			if (deathmatch->value)
 			{
@@ -471,6 +495,11 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 	G_FindTeams();
 
 	PlayerTrail_Init();
+
+#ifdef TEMPORALCORTEX
+	gi.dprintf("%s\n", ent->classname);
+	ent->bspnum = timeperiod;
+#endif
 }
 
 /* =================================================================== */
@@ -633,7 +662,9 @@ SP_worldspawn(edict_t *ent)
 	ent->movetype = MOVETYPE_PUSH;
 	ent->solid = SOLID_BSP;
 	ent->inuse = true; /* since the world doesn't use G_Spawn() */
+#ifndef TEMPORALCORTEX
 	ent->s.modelindex = 1; /* world model is always index 1 */
+#endif
 
 	/* --------------- */
 

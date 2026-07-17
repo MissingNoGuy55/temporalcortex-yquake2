@@ -1766,7 +1766,11 @@ ClientBegin(edict_t *ent)
 		return;
 	}
 
+#ifdef TEMPORALCORTEX
+	ent->client = game.clients + (ent - g_edicts - globals.num_loaded_bsps);
+#else
 	ent->client = game.clients + (ent - g_edicts - 1);
+#endif
 
 	if (deathmatch->value)
 	{
@@ -1954,7 +1958,11 @@ ClientConnect(edict_t *ent, char *userinfo)
 		/* count spectators */
 		for (i = numspec = 0; i < maxclients->value; i++)
 		{
+#ifdef TEMPORALCORTEX
+			if (g_edicts[i + globals.num_loaded_bsps].inuse && g_edicts[i + globals.num_loaded_bsps].client->pers.spectator)
+#else
 			if (g_edicts[i + 1].inuse && g_edicts[i + 1].client->pers.spectator)
+#endif
 			{
 				numspec++;
 			}
@@ -2331,7 +2339,11 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 	}
 
 	/* update chase cam if being followed */
+#ifdef TEMPORALCORTEX
+	for (i = globals.num_loaded_bsps; i <= maxclients->value; i++)
+#else
 	for (i = 1; i <= maxclients->value; i++)
+#endif
 	{
 		other = g_edicts + i;
 

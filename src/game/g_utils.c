@@ -526,7 +526,11 @@ G_FindFreeEdict(int policy)
 {
 	edict_t *e;
 
+#ifdef TEMPORALCORTEX
+	for (e = g_edicts + game.maxclients + globals.num_loaded_bsps ; e < &g_edicts[globals.num_edicts] ; e++)
+#else
 	for (e = g_edicts + game.maxclients + 1 ; e < &g_edicts[globals.num_edicts] ; e++)
+#endif
 	{
 		/* the first couple seconds of server time can involve a lot of
 		   freeing and allocating, so relax the replacement policy

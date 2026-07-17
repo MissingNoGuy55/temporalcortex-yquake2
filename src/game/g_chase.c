@@ -167,10 +167,17 @@ ChaseNext(edict_t *ent)
 	{
 		i++;
 
+#ifdef TEMPORALCORTEX
+		if (i > maxclients->value)
+		{
+			i = globals.num_loaded_bsps;
+		}
+#else
 		if (i > maxclients->value)
 		{
 			i = 1;
 		}
+#endif
 
 		e = g_edicts + i;
 
@@ -212,10 +219,17 @@ ChasePrev(edict_t *ent)
 	{
 		i--;
 
+#ifdef TEMPORALCORTEX
+		if (i < globals.num_loaded_bsps)
+		{
+			i = globals.num_loaded_bsps;
+		}
+#else
 		if (i < 1)
 		{
 			i = maxclients->value;
 		}
+#endif
 
 		e = g_edicts + i;
 
@@ -246,7 +260,11 @@ GetChaseTarget(edict_t *ent)
 		return;
 	}
 
+#ifdef TEMPORALCORTEX
+	for (i = globals.num_loaded_bsps; i < maxclients->value + globals.num_loaded_bsps; i++)
+#else
 	for (i = 1; i <= maxclients->value; i++)
+#endif
 	{
 		other = g_edicts + i;
 

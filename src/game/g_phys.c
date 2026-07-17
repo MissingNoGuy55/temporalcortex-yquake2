@@ -708,7 +708,11 @@ SV_Push(edict_t *pusher, vec3_t move, vec3_t amove)
 
 	/* see if any solid entities
 	   are inside the final position */
+#ifdef TEMPORALCORTEX
+	for (check = g_edicts + globals.num_loaded_bsps; check < &g_edicts[globals.num_edicts]; check++)
+#else
 	for (check = g_edicts + 1; check < &g_edicts[globals.num_edicts]; check++)
+#endif
 	{
 		if (!check->inuse)
 		{

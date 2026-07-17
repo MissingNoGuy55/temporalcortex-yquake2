@@ -371,8 +371,11 @@ trigger_key_use(edict_t *self, edict_t *other /* unused */,
 					break;
 				}
 			}
-
+#ifdef TEMPORALCORTEX
+			for (player = globals.num_loaded_bsps; player <= game.maxclients + globals.num_loaded_bsps; player++)
+#else
 			for (player = 1; player <= game.maxclients; player++)
+#endif
 			{
 				ent = &g_edicts[player];
 
@@ -395,7 +398,11 @@ trigger_key_use(edict_t *self, edict_t *other /* unused */,
 		}
 		else
 		{
+#ifdef TEMPORALCORTEX
+			for (player = globals.num_loaded_bsps; player <= game.maxclients + globals.num_loaded_bsps; player++)
+#else
 			for (player = 1; player <= game.maxclients; player++)
+#endif
 			{
 				ent = &g_edicts[player];
 

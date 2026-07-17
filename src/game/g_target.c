@@ -1208,7 +1208,11 @@ target_earthquake_think(edict_t *self)
 		self->last_move_time = level.time + 0.5;
 	}
 
+#ifdef TEMPORALCORTEX
+	for (i = globals.num_loaded_bsps, e = g_edicts + i; i < globals.num_edicts; i++, e++)
+#else
 	for (i = 1, e = g_edicts + i; i < globals.num_edicts; i++, e++)
+#endif
 	{
 		if (!e->inuse)
 		{

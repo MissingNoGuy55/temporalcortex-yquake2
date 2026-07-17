@@ -49,7 +49,11 @@ AI_SetSightClient(void)
 
 	if (level.sight_client == NULL)
 	{
+#ifdef TEMPORALCORTEX
+		start = globals.num_loaded_bsps;
+#else
 		start = 1;
+#endif
 	}
 	else
 	{
@@ -62,9 +66,17 @@ AI_SetSightClient(void)
 	{
 		check++;
 
+#ifdef TEMPORALCORTEX
+		if (check > game.maxclients + globals.num_loaded_bsps)
+#else
 		if (check > game.maxclients)
+#endif
 		{
+#ifdef TEMPORALCORTEX
+			check = globals.num_loaded_bsps;
+#else
 			check = 1;
+#endif
 		}
 
 		ent = &g_edicts[check];

@@ -943,6 +943,10 @@ $(BUILDDIR)/baseq2/%.o: %.c
 
 $(BINDIR)/baseq2/game.so : CFLAGS += -fPIC -Wno-unused-result
 $(BINDIR)/baseq2/game.so : LDFLAGS += -shared
+
+ifdef TEMPORALCORTEX
+$(BINDIR)/baseq2/game.so : CFLAGS += -DTEMPORALCORTEX
+endif
 endif
 
 # ----------

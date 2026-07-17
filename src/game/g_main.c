@@ -137,6 +137,15 @@ GetGameAPI(const game_import_t *import)
 
 	globals.edict_size = sizeof(edict_t);
 
+#ifdef TEMPORALCORTEX
+	globals.num_loaded_bsps = 0;
+	globals.current_bsp_index = 0;
+
+	globals.worldmodel_indices[0] = 0;
+	globals.worldmodel_indices[1] = 0;
+	globals.worldmodel_indices[2] = 0;
+#endif
+
 	/* Initalize the PRNG */
 	randk_seed();
 
@@ -186,7 +195,11 @@ ClientEndServerFrames(void)
 	{
 		edict_t *ent;
 
+#ifdef TEMPORALCORTEX
+		ent = g_edicts + globals.num_loaded_bsps + i;
+#else
 		ent = g_edicts + 1 + i;
+#endif
 
 		if (!ent->inuse || !ent->client)
 		{
@@ -361,8 +374,11 @@ CheckDMRules(void)
 			const gclient_t *cl;
 
 			cl = game.clients + i;
-
+#ifdef TEMPORALCORTEX
+			if (!g_edicts[i + globals.num_loaded_bsps].inuse)
+#else
 			if (!g_edicts[i + 1].inuse)
+#endif
 			{
 				continue;
 			}
@@ -392,9 +408,17 @@ ExitLevel(void)
 	ClientEndServerFrames();
 
 	/* clear some things before going to next level */
+#ifdef TEMPORALCORTEX
+	for (i = 0; i < maxclients->value + globals.num_loaded_bsps; i++)
+#else
 	for (i = 0; i < maxclients->value; i++)
+#endif
 	{
+#ifdef TEMPORALCORTEX
+		ent = g_edicts + globals.num_loaded_bsps + i;
+#else
 		ent = g_edicts + 1 + i;
+#endif
 
 		if (!ent->inuse)
 		{
@@ -465,7 +489,11 @@ G_RunFrame(void)
 			}
 		}
 
+#ifdef TEMPORALCORTEX
+		if ((i > globals.num_loaded_bsps) && (i < maxclients->value + globals.num_loaded_bsps))
+#else
 		if ((i > 0) && (i <= maxclients->value))
+#endif
 		{
 			ClientBeginServerFrame(ent);
 			continue;

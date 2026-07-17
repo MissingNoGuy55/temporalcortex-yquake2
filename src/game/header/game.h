@@ -93,6 +93,10 @@ struct edict_s
 	int clipmask;
 	edict_t *owner;
 
+#ifdef TEMPORALCORTEX
+	short bspnum;
+#endif
+
 	/* the game dll can add anything it wants
 	   after this point in the structure */
 };
@@ -195,7 +199,11 @@ typedef struct
 	void (*Shutdown)(void);
 
 	/* each new level entered will cause a call to SpawnEntities */
+#ifdef TEMPORALCORTEX
+	void (*SpawnEntities)(const char *mapname, char *entstring, const char *spawnpoint, short timeperiod);
+#else
 	void (*SpawnEntities)(const char *mapname, char *entstring, const char *spawnpoint);
+#endif
 
 	/* Read/Write Game is for storing persistant cross level information
 	   about the world state and the clients.
@@ -234,4 +242,10 @@ typedef struct
 	int edict_size;
 	int num_edicts;             /* current number, <= max_edicts */
 	int max_edicts;
+#ifdef TEMPORALCORTEX
+	short num_loaded_bsps;
+	short current_bsp_index;
+	short worldmodel_indices[3];	// Missi: MAX_TIME_PERIODS (2026.7.11)
+	short world_indices[3];
+#endif
 } game_export_t;

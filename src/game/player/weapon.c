@@ -150,7 +150,11 @@ PlayerNoise_Verify(edict_t *who)
 		return;
 	}
 
+#ifdef TEMPORALCORTEX
+	for (e = g_edicts + globals.num_loaded_bsps + game.maxclients; e < &g_edicts[globals.num_edicts]; e++)
+#else
 	for (e = g_edicts + 1 + game.maxclients; e < &g_edicts[globals.num_edicts]; e++)
+#endif
 	{
 		if (!e->inuse || strcmp(e->classname, "player_noise") != 0)
 		{

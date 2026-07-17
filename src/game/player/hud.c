@@ -95,11 +95,19 @@ BeginIntermission(const edict_t *targ)
 	game.autosaved = false;
 
 	/* respawn any dead clients */
+#ifdef TEMPORALCORTEX
+	for (i = 0; i < maxclients->value + globals.num_loaded_bsps; i++)
+#else
 	for (i = 0; i < maxclients->value; i++)
+#endif
 	{
 		edict_t *client;
 
+#ifdef TEMPORALCORTEX
+		client = g_edicts + globals.num_loaded_bsps + i;
+#else
 		client = g_edicts + 1 + i;
+#endif
 
 		if (!client->inuse)
 		{
@@ -119,12 +127,20 @@ BeginIntermission(const edict_t *targ)
 	{
 		if (coop->value)
 		{
+#ifdef TEMPORALCORTEX
+			for (i = 0; i < maxclients->value + globals.num_loaded_bsps; i++)
+#else
 			for (i = 0; i < maxclients->value; i++)
+#endif
 			{
 				int n;
 				edict_t *client;
 
+#ifdef TEMPORALCORTEX
+				client = g_edicts + globals.num_loaded_bsps + i;
+#else
 				client = g_edicts + 1 + i;
+#endif
 
 				if (!client->inuse)
 				{
@@ -198,11 +214,19 @@ BeginIntermission(const edict_t *targ)
 	}
 
 	/* move all clients to the intermission point */
+#ifdef TEMPORALCORTEX
+	for (i = 0; i < maxclients->value + globals.num_loaded_bsps; i++)
+#else
 	for (i = 0; i < maxclients->value; i++)
+#endif
 	{
 		edict_t *client;
 
+#ifdef TEMPORALCORTEX
+		client = g_edicts + globals.num_loaded_bsps + i;
+#else
 		client = g_edicts + 1 + i;
+#endif
 
 		if (!client->inuse)
 		{
@@ -232,12 +256,20 @@ DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 	/* sort the clients by score */
 	total = 0;
 
+#ifdef TEMPORALCORTEX
+	for (i = 0; i < game.maxclients + globals.num_loaded_bsps; i++)
+#else
 	for (i = 0; i < game.maxclients; i++)
+#endif
 	{
 		int k, j, score;
 		edict_t *cl_ent;
 
+#ifdef TEMPORALCORTEX
+		cl_ent = g_edicts + globals.num_loaded_bsps + i;
+#else
 		cl_ent = g_edicts + 1 + i;
+#endif
 
 		if (!cl_ent->inuse || game.clients[i].resp.spectator)
 		{
@@ -285,7 +317,11 @@ DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 		edict_t *cl_ent;
 
 		cl = &game.clients[sorted[i]];
+#ifdef TEMPORALCORTEX
+		cl_ent = g_edicts + globals.num_loaded_bsps + sorted[i];
+#else
 		cl_ent = g_edicts + 1 + sorted[i];
+#endif
 
 		x = (i >= 6) ? 160 : 0;
 		y = 32 + 32 * (i % 6);
@@ -609,7 +645,11 @@ G_CheckChaseStats(const edict_t *ent)
 		return;
 	}
 
+#ifdef TEMPORALCORTEX
+	for (i = globals.num_loaded_bsps; i <= maxclients->value; i++)
+#else
 	for (i = 1; i <= maxclients->value; i++)
+#endif
 	{
 		gclient_t *cl;
 
