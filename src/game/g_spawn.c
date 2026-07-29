@@ -436,6 +436,10 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 
 		entities = ED_ParseEdict(entities, ent);
 
+#ifdef TEMPORALCORTEX
+		ent->bspnum = timeperiod;
+#endif
+
 		/* yet another map hack */
 		if (!Q_stricmp(level.mapname, "command") &&
 			!Q_stricmp(ent->classname, "trigger_once") &&
@@ -447,7 +451,7 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 		/* remove things (except the world) from
 		   different skill levels or deathmatch */
 #ifdef TEMPORALCORTEX
-		if (ent < &g_edicts[globals.num_loaded_bsps])
+		if (ent >= &g_edicts[globals.num_loaded_bsps])
 #else
 		if (ent != g_edicts)
 #endif
@@ -495,11 +499,6 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 	G_FindTeams();
 
 	PlayerTrail_Init();
-
-#ifdef TEMPORALCORTEX
-	gi.dprintf("%s\n", ent->classname);
-	ent->bspnum = timeperiod;
-#endif
 }
 
 /* =================================================================== */
