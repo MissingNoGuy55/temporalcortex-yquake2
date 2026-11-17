@@ -4,3 +4,5 @@
 *.mk
 *.user
 *.d
+.kdev4
+*.kdev4
