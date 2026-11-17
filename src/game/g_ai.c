@@ -67,7 +67,7 @@ AI_SetSightClient(void)
 		check++;
 
 #ifdef TEMPORALCORTEX
-		if (check >= game.maxclients + globals.num_loaded_bsps)
+		if (check > game.maxclients + globals.num_loaded_bsps - globals.num_unloaded_bsps)
 #else
 		if (check > game.maxclients)
 #endif

@@ -257,7 +257,7 @@ DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 	total = 0;
 
 #ifdef TEMPORALCORTEX
-	for (i = 0; i < game.maxclients + globals.num_loaded_bsps + 1; i++)
+	for (i = 0; i < game.maxclients + globals.num_loaded_bsps - globals.num_unloaded_bsps; i++)
 #else
 	for (i = 0; i < game.maxclients; i++)
 #endif
