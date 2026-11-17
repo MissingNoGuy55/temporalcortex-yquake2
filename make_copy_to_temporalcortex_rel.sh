@@ -1,4 +1,4 @@
 #!/bin/bash
 
-make DEBUG=0 TEMPORALCORTEX=1 game
-cp debug/baseq2/game.so ~/.quake2/q2gameamd64_baseq2.so
+make TEMPORALCORTEX=1 game
+cp release/baseq2/game.so ~/.local/share/temporalcortex/q2gameamd64_baseq2.so
