@@ -37,6 +37,11 @@ static spawn_t spawns[] = {
 #include "savegame/tables/spawnfunc_list.h"
 };
 
+#ifdef TEMPORALCORTEX
+static int g_entinit;
+static const char *the_fucking_stupid_corrupt_pointer;
+#endif
+
 /*
  * Finds the spawn function for
  * the entity and calls it
@@ -350,6 +355,10 @@ G_FindTeams(void)
 	gi.dprintf("%i teams with %i entities.\n", c, c2);
 }
 
+#ifdef TEMPORALCORTEX
+static int bspcount;
+#endif
+
 /*
  * Creates a server's entity / program execution context by
  * parsing textual entity definitions out of an ent file.
@@ -366,6 +375,14 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 	const char *com_token;
 	int i;
 	float skill_level;
+
+#ifdef TEMPORALCORTEX
+	if (bspcount >= globals.num_loaded_bsps + 1)
+	{
+		bspcount = 0;
+		g_entinit = false;
+	}
+#endif
 
 	if (!mapname || !entities || !spawnpoint)
 	{
@@ -385,11 +402,24 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 
 	gi.FreeTags(TAG_LEVEL);
 
+#ifdef TEMPORALCORTEX
+	if (!g_entinit)
+	{
+		memset(&level, 0, sizeof(level));
+		memset(g_edicts, 0, game.maxentities * sizeof(g_edicts[0]));
+
+		Q_strlcpy(level.mapname, mapname, sizeof(level.mapname));
+		Q_strlcpy(game.spawnpoint, spawnpoint, sizeof(game.spawnpoint));
+
+		g_entinit = true;
+	}
+#else
 	memset(&level, 0, sizeof(level));
 	memset(g_edicts, 0, game.maxentities * sizeof(g_edicts[0]));
 
 	Q_strlcpy(level.mapname, mapname, sizeof(level.mapname));
 	Q_strlcpy(game.spawnpoint, spawnpoint, sizeof(game.spawnpoint));
+#endif
 
 	/* set client fields on player ents */
 	for (i = 0; i < game.maxclients; i++)
@@ -424,7 +454,10 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 		if (!ent)
 		{
 #ifdef TEMPORALCORTEX
-			ent = &g_edicts[timeperiod];
+			ent = &g_edicts[bspcount];
+			ent->s.number = bspcount;
+
+			bspcount++;
 #else
 			ent = g_edicts;
 #endif
@@ -451,7 +484,7 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 		/* remove things (except the world) from
 		   different skill levels or deathmatch */
 #ifdef TEMPORALCORTEX
-		if (ent >= &g_edicts[globals.num_loaded_bsps])
+		if (ent > &g_edicts[globals.num_loaded_bsps])
 #else
 		if (ent != g_edicts)
 #endif
@@ -489,6 +522,9 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 		}
 
 		ED_CallSpawn(ent);
+
+		if (!strncmp(ent->classname, "info_player_start", 17))
+			the_fucking_stupid_corrupt_pointer = ent->classname;
 	}
 
 	/* in case the last entity in the entstring has spawntemp fields */

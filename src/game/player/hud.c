@@ -257,7 +257,7 @@ DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 	total = 0;
 
 #ifdef TEMPORALCORTEX
-	for (i = 0; i < game.maxclients + globals.num_loaded_bsps; i++)
+	for (i = 0; i < game.maxclients + globals.num_loaded_bsps + 1; i++)
 #else
 	for (i = 0; i < game.maxclients; i++)
 #endif
@@ -698,7 +698,11 @@ G_SetSpectatorStats(edict_t *ent)
 	if (cl->chase_target && cl->chase_target->inuse)
 	{
 		cl->ps.stats[STAT_CHASE] = CS_PLAYERSKINS +
+#ifdef TEMPORALCORTEX
+								   (cl->chase_target - g_edicts) + globals.num_loaded_bsps - 1;
+#else
 								   (cl->chase_target - g_edicts) - 1;
+#endif
 	}
 	else
 	{

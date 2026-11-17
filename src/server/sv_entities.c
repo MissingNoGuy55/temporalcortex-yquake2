@@ -556,7 +556,11 @@ SV_BuildClientFrame(client_t *client)
 	frame->num_entities = 0;
 	frame->first_entity = svs.next_client_entities;
 
+#ifdef TEMPORALCORTEX
+	for (e = globals.num_loaded_bsps; e < ge->num_edicts; e++)
+#else
 	for (e = 1; e < ge->num_edicts; e++)
+#endif
 	{
 		ent = EDICT_NUM(e);
 

@@ -490,7 +490,7 @@ G_RunFrame(void)
 		}
 
 #ifdef TEMPORALCORTEX
-		if ((i > globals.num_loaded_bsps) && (i < maxclients->value + globals.num_loaded_bsps))
+		if ((i >= globals.num_loaded_bsps) && (i < maxclients->value + globals.num_loaded_bsps))
 #else
 		if ((i > 0) && (i <= maxclients->value))
 #endif

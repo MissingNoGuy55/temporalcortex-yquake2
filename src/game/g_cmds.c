@@ -1249,7 +1249,7 @@ Cmd_Say_f(edict_t *ent, qboolean team, qboolean arg0)
 	}
 
 #ifdef TEMPORALCORTEX
-	for (j = globals.num_loaded_bsps; j <= game.maxclients + globals.num_loaded_bsps; j++)
+	for (j = globals.num_loaded_bsps; j < game.maxclients + globals.num_loaded_bsps; j++)
 #else
 	for (j = 1; j <= game.maxclients; j++)
 #endif

@@ -168,7 +168,7 @@ ChaseNext(edict_t *ent)
 		i++;
 
 #ifdef TEMPORALCORTEX
-		if (i > maxclients->value)
+		if (i > maxclients->value + globals.num_loaded_bsps)
 		{
 			i = globals.num_loaded_bsps;
 		}

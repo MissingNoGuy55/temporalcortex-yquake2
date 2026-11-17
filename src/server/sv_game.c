@@ -100,8 +100,11 @@ PF_cprintf(const edict_t *ent, int level, const char *fmt, ...)
 	if (ent)
 	{
 		n = NUM_FOR_EDICT(ent);
-
+#ifdef TEMPORALCORTEX
+		if ((n < globals.num_loaded_bsps) || (n > maxclients->value) + globals.num_loaded_bsps - 1)
+#else
 		if ((n < 1) || (n > maxclients->value))
+#endif
 		{
 			Com_Error(ERR_DROP, "cprintf to a non-client");
 		}

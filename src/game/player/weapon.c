@@ -151,7 +151,7 @@ PlayerNoise_Verify(edict_t *who)
 	}
 
 #ifdef TEMPORALCORTEX
-	for (e = g_edicts + globals.num_loaded_bsps + game.maxclients; e < &g_edicts[globals.num_edicts]; e++)
+	for (e = g_edicts + globals.num_loaded_bsps + game.maxclients - 1; e < &g_edicts[globals.num_edicts]; e++)
 #else
 	for (e = g_edicts + 1 + game.maxclients; e < &g_edicts[globals.num_edicts]; e++)
 #endif
@@ -378,7 +378,11 @@ ChangeWeapon(edict_t *ent)
 			i = 0;
 		}
 
+#ifdef TEMPORALCORTEX
+		ent->s.skinnum = (ent - g_edicts - globals.num_loaded_bsps) | i;
+#else
 		ent->s.skinnum = (ent - g_edicts - 1) | i;
+#endif
 	}
 
 	ent->client->ammo_index = GetWeaponAmmoIndex(ent->client->pers.weapon);

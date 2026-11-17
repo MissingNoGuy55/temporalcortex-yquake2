@@ -924,7 +924,11 @@ SaveClientData(void)
 
 	for (i = 0; i < game.maxclients; i++)
 	{
+#ifdef TEMPORALCORTEX
+		ent = &g_edicts[globals.num_loaded_bsps + i];
+#else
 		ent = &g_edicts[1 + i];
+#endif
 
 		if (!ent->inuse)
 		{
@@ -1553,7 +1557,12 @@ PutClientInServer(edict_t *ent)
 	   doesn't count this client */
 	SelectSpawnPoint(ent, spawn_origin, spawn_angles);
 
+#ifdef TEMPORALCORTEX
+	index = ent - g_edicts - globals.num_loaded_bsps;
+#else
 	index = ent - g_edicts - 1;
+#endif
+
 	client = ent->client;
 
 	/* deathmatch wipes most client data every spawn */
@@ -1662,7 +1671,12 @@ PutClientInServer(edict_t *ent)
 
 	/* sknum is player num and weapon number
 	   weapon number will be added in changeweapon */
+
+#ifdef TEMPORALCORTEX
+	ent->s.skinnum = ent - g_edicts - globals.num_loaded_bsps;
+#else
 	ent->s.skinnum = ent - g_edicts - 1;
+#endif
 
 	ent->s.frame = 0;
 	VectorCopy(spawn_origin, ent->s.origin);
@@ -1873,7 +1887,11 @@ ClientUserinfoChanged(edict_t *ent, char *userinfo)
 	/* set skin */
 	s = Info_ValueForKey(userinfo, "skin");
 
+#ifdef TEMPORALCORTEX
+	playernum = ent - g_edicts - globals.num_loaded_bsps;
+#else
 	playernum = ent - g_edicts - 1;
+#endif
 
 	/* combine name and skin into a configstring */
 	gi.configstring(CS_PLAYERSKINS + playernum,
@@ -1990,7 +2008,11 @@ ClientConnect(edict_t *ent, char *userinfo)
 	}
 
 	/* they can connect */
+#ifdef TEMPORALCORTEX
+	ent->client = game.clients + (ent - g_edicts - globals.num_loaded_bsps);
+#else
 	ent->client = game.clients + (ent - g_edicts - 1);
+#endif
 
 	/* if there is already a body waiting for us (a loadgame),
 	   just take it, otherwise spawn one from scratch */
@@ -2051,7 +2073,11 @@ ClientDisconnect(edict_t *ent)
 	ent->classname = "disconnected";
 	ent->client->pers.connected = false;
 
+#ifdef TEMPORALCORTEX
+	playernum = ent - g_edicts - globals.num_loaded_bsps;
+#else
 	playernum = ent - g_edicts - 1;
+#endif
 	gi.configstring(CS_PLAYERSKINS + playernum, "");
 }
 

@@ -527,7 +527,7 @@ G_FindFreeEdict(int policy)
 	edict_t *e;
 
 #ifdef TEMPORALCORTEX
-	for (e = g_edicts + game.maxclients + globals.num_loaded_bsps ; e < &g_edicts[globals.num_edicts] ; e++)
+	for (e = g_edicts + game.maxclients + globals.num_loaded_bsps - 1 ; e < &g_edicts[globals.num_edicts] ; e++)
 #else
 	for (e = g_edicts + game.maxclients + 1 ; e < &g_edicts[globals.num_edicts] ; e++)
 #endif
@@ -592,6 +592,22 @@ G_FreeEdict(edict_t *ed)
 
 	gi.unlinkentity(ed); /* unlink from world */
 
+#ifdef TEMPORALCORTEX
+	if (deathmatch->value || coop->value)
+	{
+		if ((ed - g_edicts) <= (maxclients->value + BODY_QUEUE_SIZE) + globals.num_loaded_bsps - 1)
+		{
+			return;
+		}
+	}
+	else
+	{
+		if ((ed - g_edicts) <= maxclients->value + globals.num_loaded_bsps - 1)
+		{
+			return;
+		}
+	}
+#else
 	if (deathmatch->value || coop->value)
 	{
 		if ((ed - g_edicts) <= (maxclients->value + BODY_QUEUE_SIZE))
@@ -606,6 +622,7 @@ G_FreeEdict(edict_t *ed)
 			return;
 		}
 	}
+#endif
 
 	memset(ed, 0, sizeof(*ed));
 	ed->classname = "freed";

@@ -1209,7 +1209,7 @@ target_earthquake_think(edict_t *self)
 	}
 
 #ifdef TEMPORALCORTEX
-	for (i = globals.num_loaded_bsps, e = g_edicts + i; i < globals.num_edicts; i++, e++)
+	for (i = globals.num_loaded_bsps - 1, e = g_edicts + i; i < globals.num_edicts; i++, e++)
 #else
 	for (i = 1, e = g_edicts + i; i < globals.num_edicts; i++, e++)
 #endif
