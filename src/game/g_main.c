@@ -38,6 +38,10 @@ int meansOfDeath;
 
 edict_t *g_edicts;
 
+#ifdef TEMPORALCORTEX
+qboolean g_entinit;
+#endif
+
 cvar_t *deathmatch;
 cvar_t *coop;
 cvar_t *coop_pickup_weapons;
@@ -408,11 +412,7 @@ ExitLevel(void)
 	ClientEndServerFrames();
 
 	/* clear some things before going to next level */
-#ifdef TEMPORALCORTEX
-	for (i = 0; i < maxclients->value + globals.num_loaded_bsps; i++)
-#else
 	for (i = 0; i < maxclients->value; i++)
-#endif
 	{
 #ifdef TEMPORALCORTEX
 		ent = g_edicts + globals.num_loaded_bsps + i;

@@ -95,11 +95,7 @@ BeginIntermission(const edict_t *targ)
 	game.autosaved = false;
 
 	/* respawn any dead clients */
-#ifdef TEMPORALCORTEX
-	for (i = 0; i < maxclients->value + globals.num_loaded_bsps; i++)
-#else
 	for (i = 0; i < maxclients->value; i++)
-#endif
 	{
 		edict_t *client;
 
@@ -127,11 +123,7 @@ BeginIntermission(const edict_t *targ)
 	{
 		if (coop->value)
 		{
-#ifdef TEMPORALCORTEX
-			for (i = 0; i < maxclients->value + globals.num_loaded_bsps; i++)
-#else
 			for (i = 0; i < maxclients->value; i++)
-#endif
 			{
 				int n;
 				edict_t *client;
@@ -214,11 +206,7 @@ BeginIntermission(const edict_t *targ)
 	}
 
 	/* move all clients to the intermission point */
-#ifdef TEMPORALCORTEX
-	for (i = 0; i < maxclients->value + globals.num_loaded_bsps; i++)
-#else
 	for (i = 0; i < maxclients->value; i++)
-#endif
 	{
 		edict_t *client;
 
@@ -257,7 +245,7 @@ DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 	total = 0;
 
 #ifdef TEMPORALCORTEX
-	for (i = 0; i < game.maxclients + globals.num_loaded_bsps - globals.num_unloaded_bsps; i++)
+	for (i = 0; i < game.maxclients + globals.num_loaded_bsps; i++)
 #else
 	for (i = 0; i < game.maxclients; i++)
 #endif

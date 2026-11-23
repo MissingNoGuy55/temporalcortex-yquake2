@@ -83,8 +83,11 @@ UpdateChaseCam(edict_t *ent)
 	{
 		o[2] += 16;
 	}
-
+#ifdef TEMPORALCORTEX
+	trace = gi.trace(ownerv, vec3_origin, vec3_origin, o, targ, MASK_SOLID, targ->bspnum);
+#else
 	trace = gi.trace(ownerv, vec3_origin, vec3_origin, o, targ, MASK_SOLID);
+#endif
 
 	VectorCopy(trace.endpos, goal);
 
@@ -93,7 +96,11 @@ UpdateChaseCam(edict_t *ent)
 	/* pad for floors and ceilings */
 	VectorCopy(goal, o);
 	o[2] += 6;
+#ifdef TEMPORALCORTEX
+	trace = gi.trace(goal, vec3_origin, vec3_origin, o, targ, MASK_SOLID, targ->bspnum);
+#else
 	trace = gi.trace(goal, vec3_origin, vec3_origin, o, targ, MASK_SOLID);
+#endif
 
 	if (trace.fraction < 1)
 	{
@@ -103,7 +110,11 @@ UpdateChaseCam(edict_t *ent)
 
 	VectorCopy(goal, o);
 	o[2] -= 6;
+#ifdef TEMPORALCORTEX
+	trace = gi.trace(goal, vec3_origin, vec3_origin, o, targ, MASK_SOLID, targ->bspnum);
+#else
 	trace = gi.trace(goal, vec3_origin, vec3_origin, o, targ, MASK_SOLID);
+#endif
 
 	if (trace.fraction < 1)
 	{
@@ -261,7 +272,7 @@ GetChaseTarget(edict_t *ent)
 	}
 
 #ifdef TEMPORALCORTEX
-	for (i = globals.num_loaded_bsps; i < maxclients->value + globals.num_loaded_bsps; i++)
+	for (i = globals.num_loaded_bsps; i <= maxclients->value + globals.num_loaded_bsps; i++)
 #else
 	for (i = 1; i <= maxclients->value; i++)
 #endif

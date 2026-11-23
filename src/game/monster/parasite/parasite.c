@@ -541,9 +541,11 @@ parasite_drain_attack(edict_t *self)
 	}
 
 	VectorCopy(self->enemy->s.origin, end);
-
+#ifdef TEMPORALCORTEX
+	tr = gi.trace(start, NULL, NULL, end, self, MASK_SHOT, self->bspnum);
+#else
 	tr = gi.trace(start, NULL, NULL, end, self, MASK_SHOT);
-
+#endif
 	if (tr.ent != self->enemy)
 	{
 		return;

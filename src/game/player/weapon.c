@@ -76,8 +76,11 @@ P_ProjectSource(edict_t *ent, vec3_t distance,
 		vec3_t start, end;
 		VectorSet(start, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] + ent->viewheight);
 		VectorMA(start, 8192, forward, end);
-
+#ifdef TEMPORALCORTEX
+		trace_t	tr = gi.trace(start, NULL, NULL, end, ent, MASK_SHOT, ent->bspnum);
+#else
 		trace_t	tr = gi.trace(start, NULL, NULL, end, ent, MASK_SHOT);
+#endif
 		if (tr.fraction < 1)
 		{
 			VectorSubtract(tr.endpos, result, forward);

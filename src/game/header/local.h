@@ -503,6 +503,10 @@ extern int meansOfDeath;
 
 extern edict_t *g_edicts;
 
+#ifdef TEMPORALCORTEX
+extern qboolean g_entinit;
+#endif
+
 #define FOFS(x) (size_t)&(((edict_t *)NULL)->x)
 #define STOFS(x) (size_t)&(((spawn_temp_t *)NULL)->x)
 #define LLOFS(x) (size_t)&(((level_locals_t *)NULL)->x)
@@ -849,7 +853,7 @@ void WriteLevel(const char *filename);
 void ReadGame(const char *filename);
 void WriteGame(const char *filename, qboolean autosave);
 #ifdef TEMPORALCORTEX
-void SpawnEntities(const char *mapname, char *entities, const char *spawnpoint, short timeperiod);
+void SpawnEntities(const char *mapname, char *entities, const char *spawnpoint, short edictnum, short bspnum);
 #else
 void SpawnEntities(const char *mapname, char *entities, const char *spawnpoint);
 #endif
@@ -1152,9 +1156,14 @@ struct edict_s
 	monsterinfo_t monsterinfo;
 
 #ifdef TEMPORALCORTEX
-	short bspnum;
+	short	bspnum;
 #endif
 };
+
+#ifdef TEMPORALCORTEX
+extern edict_t* corrupt_pointer;
+extern int g_bspcount;
+#endif
 
 /*
  * Uncomment for check that exported functions declarations are same as in

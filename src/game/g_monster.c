@@ -246,10 +246,13 @@ M_CheckGround(edict_t *ent)
 	point[0] = ent->s.origin[0];
 	point[1] = ent->s.origin[1];
 	point[2] = ent->s.origin[2] - 0.25;
-
+#ifdef TEMPORALCORTEX
 	trace = gi.trace(ent->s.origin, ent->mins, ent->maxs, point,
-			ent, MASK_MONSTERSOLID);
-
+			ent, MASK_MONSTERSOLID, ent->bspnum);
+#else
+	trace = gi.trace(ent->s.origin, ent->mins, ent->maxs, point,
+					 ent, MASK_MONSTERSOLID);
+#endif
 	/* check steepness */
 	if ((trace.plane.normal[2] < 0.7) && !trace.startsolid)
 	{
@@ -281,8 +284,11 @@ M_CatagorizePosition(edict_t *ent)
 	point[0] = (ent->absmax[0] + ent->absmin[0])/2;
 	point[1] = (ent->absmax[1] + ent->absmin[1])/2;
 	point[2] = ent->absmin[2] + 2;
+#ifdef TEMPORALCORTEX
+	cont = gi.pointcontents(point, globals.current_bsp_index);
+#else
 	cont = gi.pointcontents(point);
-
+#endif
 	if (!(cont & MASK_WATER))
 	{
 		ent->waterlevel = 0;
@@ -293,7 +299,11 @@ M_CatagorizePosition(edict_t *ent)
 	ent->watertype = cont;
 	ent->waterlevel = 1;
 	point[2] += 26;
+#ifdef TEMPORALCORTEX
+	cont = gi.pointcontents(point, globals.current_bsp_index);
+#else
 	cont = gi.pointcontents(point);
+#endif
 
 	if (!(cont & MASK_WATER))
 	{
@@ -302,7 +312,11 @@ M_CatagorizePosition(edict_t *ent)
 
 	ent->waterlevel = 2;
 	point[2] += 22;
+#ifdef TEMPORALCORTEX
+	cont = gi.pointcontents(point, globals.current_bsp_index);
+#else
 	cont = gi.pointcontents(point);
+#endif
 
 	if (cont & MASK_WATER)
 	{
@@ -452,9 +466,13 @@ M_droptofloor(edict_t *ent)
 	ent->s.origin[2] += 1;
 	VectorCopy(ent->s.origin, end);
 	end[2] -= 256;
-
+#ifdef TEMPORALCORTEX
+	trace = gi.trace(ent->s.origin, ent->mins, ent->maxs, end,
+			ent, MASK_MONSTERSOLID, ent->bspnum);
+#else
 	trace = gi.trace(ent->s.origin, ent->mins, ent->maxs, end,
 			ent, MASK_MONSTERSOLID);
+#endif
 
 	if ((trace.fraction == 1) || trace.allsolid)
 	{

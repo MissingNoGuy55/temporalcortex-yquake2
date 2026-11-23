@@ -855,9 +855,11 @@ medic_cable_attack(edict_t *self)
 	{
 		return;
 	}
-
+#ifdef TEMPORALCORTEX
+	tr = gi.trace(start, NULL, NULL, self->enemy->s.origin, self, MASK_SHOT, self->bspnum);
+#else
 	tr = gi.trace(start, NULL, NULL, self->enemy->s.origin, self, MASK_SHOT);
-
+#endif
 	if ((tr.fraction != 1.0) && (tr.ent != self->enemy))
 	{
 		return;

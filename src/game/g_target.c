@@ -846,9 +846,13 @@ target_laser_think(edict_t *self)
 
 	while (1)
 	{
+#ifdef TEMPORALCORTEX
 		tr = gi.trace(start, NULL, NULL, end, ignore,
-				CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_DEADMONSTER);
-
+				CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_DEADMONSTER, self->bspnum);
+#else
+		tr = gi.trace(start, NULL, NULL, end, ignore,
+					  CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_DEADMONSTER);
+#endif
 		if (!tr.ent)
 		{
 			break;
@@ -1209,7 +1213,7 @@ target_earthquake_think(edict_t *self)
 	}
 
 #ifdef TEMPORALCORTEX
-	for (i = globals.num_loaded_bsps - 1, e = g_edicts + i; i < globals.num_edicts; i++, e++)
+	for (i = globals.num_loaded_bsps, e = g_edicts + i; i < globals.num_edicts; i++, e++)
 #else
 	for (i = 1, e = g_edicts + i; i < globals.num_edicts; i++, e++)
 #endif

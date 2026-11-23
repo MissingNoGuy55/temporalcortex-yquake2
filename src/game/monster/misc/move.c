@@ -63,8 +63,11 @@ M_CheckBottom(edict_t *ent)
 		{
 			start[0] = x ? maxs[0] : mins[0];
 			start[1] = y ? maxs[1] : mins[1];
-
+#ifdef TEMPORALCORTEX
+			if (gi.pointcontents(start, ent->bspnum) != CONTENTS_SOLID)
+#else
 			if (gi.pointcontents(start) != CONTENTS_SOLID)
+#endif
 			{
 				goto realcheck;
 			}
@@ -84,9 +87,13 @@ realcheck:
 	start[0] = stop[0] = (mins[0] + maxs[0]) * 0.5;
 	start[1] = stop[1] = (mins[1] + maxs[1]) * 0.5;
 	stop[2] = start[2] - 2 * STEPSIZE;
+#ifdef TEMPORALCORTEX
+	trace = gi.trace(start, vec3_origin, vec3_origin,
+			stop, ent, MASK_MONSTERSOLID, ent->bspnum);
+#else
 	trace = gi.trace(start, vec3_origin, vec3_origin,
 			stop, ent, MASK_MONSTERSOLID);
-
+#endif
 	if (trace.fraction == 1.0)
 	{
 		return false;
@@ -101,10 +108,13 @@ realcheck:
 		{
 			start[0] = stop[0] = x ? maxs[0] : mins[0];
 			start[1] = stop[1] = y ? maxs[1] : mins[1];
-
+#ifdef TEMPORALCORTEX
+			trace = gi.trace(start, vec3_origin, vec3_origin,
+					stop, ent, MASK_MONSTERSOLID, ent->bspnum);
+#else
 			trace = gi.trace(start, vec3_origin, vec3_origin,
 					stop, ent, MASK_MONSTERSOLID);
-
+#endif
 			if ((trace.fraction != 1.0) && (trace.endpos[2] > bottom))
 			{
 				bottom = trace.endpos[2];
@@ -201,10 +211,13 @@ SV_movestep(edict_t *ent, vec3_t move, qboolean relink)
 					}
 				}
 			}
-
+#ifdef TEMPORALCORTEX
+			trace = gi.trace(ent->s.origin, ent->mins, ent->maxs,
+					neworg, ent, MASK_MONSTERSOLID, ent->bspnum);
+#else
 			trace = gi.trace(ent->s.origin, ent->mins, ent->maxs,
 					neworg, ent, MASK_MONSTERSOLID);
-
+#endif
 			/* fly monsters don't enter water voluntarily */
 			if (ent->flags & FL_FLY)
 			{
@@ -213,8 +226,11 @@ SV_movestep(edict_t *ent, vec3_t move, qboolean relink)
 					test[0] = trace.endpos[0];
 					test[1] = trace.endpos[1];
 					test[2] = trace.endpos[2] + ent->mins[2] + 1;
+#ifdef TEMPORALCORTEX
+					contents = gi.pointcontents(test, ent->bspnum);
+#else
 					contents = gi.pointcontents(test);
-
+#endif
 					if (contents & MASK_WATER)
 					{
 						return false;
@@ -230,8 +246,11 @@ SV_movestep(edict_t *ent, vec3_t move, qboolean relink)
 					test[0] = trace.endpos[0];
 					test[1] = trace.endpos[1];
 					test[2] = trace.endpos[2] + ent->mins[2] + 1;
+#ifdef TEMPORALCORTEX
+					contents = gi.pointcontents(test, ent->bspnum);
+#else
 					contents = gi.pointcontents(test);
-
+#endif
 					if (!(contents & MASK_WATER))
 					{
 						return false;
@@ -274,9 +293,11 @@ SV_movestep(edict_t *ent, vec3_t move, qboolean relink)
 	neworg[2] += stepsize;
 	VectorCopy(neworg, end);
 	end[2] -= stepsize * 2;
-
+#ifdef TEMPORALCORTEX
+	trace = gi.trace(neworg, ent->mins, ent->maxs, end, ent, MASK_MONSTERSOLID, ent->bspnum);
+#else
 	trace = gi.trace(neworg, ent->mins, ent->maxs, end, ent, MASK_MONSTERSOLID);
-
+#endif
 	if (trace.allsolid)
 	{
 		return false;
@@ -285,9 +306,13 @@ SV_movestep(edict_t *ent, vec3_t move, qboolean relink)
 	if (trace.startsolid)
 	{
 		neworg[2] -= stepsize;
+#ifdef TEMPORALCORTEX
+		trace = gi.trace(neworg, ent->mins, ent->maxs,
+				end, ent, MASK_MONSTERSOLID, ent->bspnum);
+#else
 		trace = gi.trace(neworg, ent->mins, ent->maxs,
 				end, ent, MASK_MONSTERSOLID);
-
+#endif
 		if (trace.allsolid || trace.startsolid)
 		{
 			return false;
@@ -300,8 +325,11 @@ SV_movestep(edict_t *ent, vec3_t move, qboolean relink)
 		test[0] = trace.endpos[0];
 		test[1] = trace.endpos[1];
 		test[2] = trace.endpos[2] + ent->mins[2] + 1;
+#ifdef TEMPORALCORTEX
+		contents = gi.pointcontents(test, ent->bspnum);
+#else
 		contents = gi.pointcontents(test);
-
+#endif
 		if (contents & MASK_WATER)
 		{
 			return false;

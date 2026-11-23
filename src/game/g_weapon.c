@@ -54,7 +54,11 @@ check_dodge(edict_t *self, vec3_t start, vec3_t dir, int speed)
 	}
 
 	VectorMA(start, 8192, dir, end);
+#ifdef TEMPORALCORTEX
+	tr = gi.trace(start, NULL, NULL, end, self, MASK_SHOT, self->bspnum);
+#else
 	tr = gi.trace(start, NULL, NULL, end, self, MASK_SHOT);
+#endif
 
 	if ((tr.ent) && (tr.ent->svflags & SVF_MONSTER) && (tr.ent->health > 0) &&
 		(tr.ent->monsterinfo.dodge) && infront(tr.ent, self))
@@ -119,8 +123,11 @@ fire_hit(edict_t *self, vec3_t aim, int damage, int kick)
 	}
 
 	VectorMA(self->s.origin, range, dir, point);
-
+#ifdef TEMPORALCORTEX
+	tr = gi.trace(self->s.origin, NULL, NULL, point, self, MASK_SHOT, self->bspnum);
+#else
 	tr = gi.trace(self->s.origin, NULL, NULL, point, self, MASK_SHOT);
+#endif
 
 	if (tr.fraction < 1)
 	{
@@ -188,9 +195,11 @@ fire_lead(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick,
 	{
 		return;
 	}
-
+#ifdef TEMPORALCORTEX
+	tr = gi.trace(self->s.origin, NULL, NULL, start, self, MASK_SHOT, self->bspnum);
+#else
 	tr = gi.trace(self->s.origin, NULL, NULL, start, self, MASK_SHOT);
-
+#endif
 	if (!(tr.fraction < 1.0))
 	{
 		vectoangles(aimdir, dir);
@@ -201,15 +210,21 @@ fire_lead(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick,
 		VectorMA(start, 8192, forward, end);
 		VectorMA(end, r, right, end);
 		VectorMA(end, u, up, end);
-
+#ifdef TEMPORALCORTEX
+		if (gi.pointcontents(start, self->bspnum) & MASK_WATER)
+#else
 		if (gi.pointcontents(start) & MASK_WATER)
+#endif
 		{
 			water = true;
 			VectorCopy(start, water_start);
 			content_mask &= ~MASK_WATER;
 		}
-
+#ifdef TEMPORALCORTEX
+		tr = gi.trace(start, NULL, NULL, end, self, content_mask, self->bspnum);
+#else
 		tr = gi.trace(start, NULL, NULL, end, self, content_mask);
+#endif
 
 		/* see if we hit water */
 		if (tr.contents & MASK_WATER)
@@ -268,7 +283,11 @@ fire_lead(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick,
 			}
 
 			/* re-trace ignoring water this time */
+#ifdef TEMPORALCORTEX
+			tr = gi.trace(water_start, NULL, NULL, end, self, MASK_SHOT, self->bspnum);
+#else
 			tr = gi.trace(water_start, NULL, NULL, end, self, MASK_SHOT);
+#endif
 		}
 	}
 
@@ -310,14 +329,21 @@ fire_lead(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick,
 		VectorSubtract(tr.endpos, water_start, dir);
 		VectorNormalize(dir);
 		VectorMA(tr.endpos, -2, dir, pos);
-
+#ifdef TEMPORALCORTEX
+		if (gi.pointcontents(pos, self->bspnum) & MASK_WATER)
+#else
 		if (gi.pointcontents(pos) & MASK_WATER)
+#endif
 		{
 			VectorCopy(pos, tr.endpos);
 		}
 		else
 		{
+#ifdef TEMPORALCORTEX
+			tr = gi.trace(pos, NULL, NULL, water_start, tr.ent, MASK_WATER, tr.ent->bspnum);
+#else
 			tr = gi.trace(pos, NULL, NULL, water_start, tr.ent, MASK_WATER);
+#endif
 		}
 
 		VectorAdd(water_start, tr.endpos, pos);
@@ -497,9 +523,11 @@ fire_blaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 	{
 		check_dodge(self, bolt->s.origin, dir, speed);
 	}
-
+#ifdef TEMPORALCORTEX
+	tr = gi.trace(self->s.origin, NULL, NULL, bolt->s.origin, bolt, MASK_SHOT, self->bspnum);
+#else
 	tr = gi.trace(self->s.origin, NULL, NULL, bolt->s.origin, bolt, MASK_SHOT);
-
+#endif
 	if (tr.fraction < 1.0)
 	{
 		VectorMA(bolt->s.origin, -10, dir, bolt->s.origin);
@@ -890,8 +918,11 @@ fire_rail(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick)
 
 	while (ignore)
 	{
+#ifdef TEMPORALCORTEX
+		tr = gi.trace(from, NULL, NULL, end, ignore, mask, self->bspnum);
+#else
 		tr = gi.trace(from, NULL, NULL, end, ignore, mask);
-
+#endif
 		if (tr.contents & (CONTENTS_SLIME | CONTENTS_LAVA))
 		{
 			mask &= ~(CONTENTS_SLIME | CONTENTS_LAVA);
@@ -1142,8 +1173,13 @@ bfg_think(edict_t *self)
 
 		while (1)
 		{
+#ifdef TEMPORALCORTEX
 			tr = gi.trace(start, NULL, NULL, end, ignore,
-					CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_DEADMONSTER);
+					CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_DEADMONSTER, self->bspnum);
+#else
+			tr = gi.trace(start, NULL, NULL, end, ignore,
+						  CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_DEADMONSTER);
+#endif
 
 			if (!tr.ent)
 			{

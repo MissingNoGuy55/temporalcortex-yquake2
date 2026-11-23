@@ -206,6 +206,8 @@ SP_info_player_start(edict_t *self)
 		self->think = SP_CreateCoopSpots;
 		self->nextthink = level.time + FRAMETIME;
 	}
+
+	corrupt_pointer = self;
 }
 
 /*
@@ -987,7 +989,11 @@ PlayersRangeFromSpot(edict_t *spot)
 
 	bestplayerdistance = 9999999;
 
+#ifdef TEMPORALCORTEX
+	for (n = globals.num_loaded_bsps; n <= maxclients->value + globals.num_loaded_bsps; n++)
+#else
 	for (n = 1; n <= maxclients->value; n++)
+#endif
 	{
 		player = &g_edicts[n];
 
@@ -1363,7 +1369,11 @@ CopyToBodyQue(edict_t *ent)
 	}
 
 	/* grab a body que and cycle to the next one */
+#ifdef TEMPORALCORTEX
+	body = &g_edicts[(int)maxclients->value + globals.num_loaded_bsps + level.body_que + 1];
+#else
 	body = &g_edicts[(int)maxclients->value + level.body_que + 1];
+#endif
 	level.body_que = (level.body_que + 1) % BODY_QUEUE_SIZE;
 
 	gi.unlinkentity(ent);
@@ -1457,7 +1467,11 @@ spectator_respawn(edict_t *ent)
 		}
 
 		/* count spectators */
+#ifdef TEMPORALCORTEX
+		for (i = globals.num_loaded_bsps, numspec = 0; i <= maxclients->value + globals.num_loaded_bsps; i++)
+#else
 		for (i = 1, numspec = 0; i <= maxclients->value; i++)
+#endif
 		{
 			if (g_edicts[i].inuse && g_edicts[i].client->pers.spectator)
 			{
@@ -2092,6 +2106,16 @@ static edict_t *pm_passent;
 static trace_t
 PM_trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end)
 {
+#ifdef TEMPORALCORTEX
+	if (pm_passent->health > 0)
+	{
+		return gi.trace(start, mins, maxs, end, pm_passent, MASK_PLAYERSOLID, globals.current_bsp_index);
+	}
+	else
+	{
+		return gi.trace(start, mins, maxs, end, pm_passent, MASK_DEADSOLID, globals.current_bsp_index);
+	}
+#else
 	if (pm_passent->health > 0)
 	{
 		return gi.trace(start, mins, maxs, end, pm_passent, MASK_PLAYERSOLID);
@@ -2100,6 +2124,7 @@ PM_trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end)
 	{
 		return gi.trace(start, mins, maxs, end, pm_passent, MASK_DEADSOLID);
 	}
+#endif
 }
 
 #if 0
@@ -2366,7 +2391,7 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 
 	/* update chase cam if being followed */
 #ifdef TEMPORALCORTEX
-	for (i = globals.num_loaded_bsps; i <= maxclients->value; i++)
+	for (i = globals.num_loaded_bsps; i < maxclients->value + globals.num_loaded_bsps; i++)
 #else
 	for (i = 1; i <= maxclients->value; i++)
 #endif

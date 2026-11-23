@@ -391,9 +391,11 @@ flipper_dead(edict_t *self)
 	p[0] = self->s.origin[0];
 	p[1] = self->s.origin[1];
 	p[2] = self->s.origin[2] - 8;
-
+#ifdef TEMPORALCORTEX
+	tr = gi.trace(self->s.origin, self->mins, self->maxs, p, self, self->clipmask, self->bspnum);
+#else
 	tr = gi.trace(self->s.origin, self->mins, self->maxs, p, self, self->clipmask);
-
+#endif
 	self->mins[2] = tr.endpos[2] - self->s.origin[2];
 
 	self->movetype = MOVETYPE_TOSS;

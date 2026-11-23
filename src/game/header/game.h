@@ -135,9 +135,15 @@ typedef struct
 	void (*setmodel)(edict_t *ent, const char *name);
 
 	/* collision detection */
+#ifdef TEMPORALCORTEX
 	trace_t (*trace)(const vec3_t start, const vec3_t mins, const vec3_t maxs,
-			const vec3_t end, const edict_t *passent, int contentmask);
+			const vec3_t end, const edict_t *passent, int contentmask, short timeperiod);
+	int (*pointcontents)(const vec3_t point, short timeperiod);
+#else
+	trace_t (*trace)(const vec3_t start, const vec3_t mins, const vec3_t maxs,
+					 const vec3_t end, const edict_t *passent, int contentmask);
 	int (*pointcontents)(const vec3_t point);
+#endif
 	qboolean (*inPVS)(vec3_t p1, vec3_t p2);
 	qboolean (*inPHS)(vec3_t p1, vec3_t p2);
 	void (*SetAreaPortalState)(int portalnum, qboolean open);
@@ -200,7 +206,7 @@ typedef struct
 
 	/* each new level entered will cause a call to SpawnEntities */
 #ifdef TEMPORALCORTEX
-	void (*SpawnEntities)(const char *mapname, char *entstring, const char *spawnpoint, short timeperiod);
+	void (*SpawnEntities)(const char *mapname, char *entstring, const char *spawnpoint, short edictnum, short bspnum);
 #else
 	void (*SpawnEntities)(const char *mapname, char *entstring, const char *spawnpoint);
 #endif

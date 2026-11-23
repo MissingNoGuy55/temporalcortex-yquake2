@@ -37,11 +37,6 @@ static spawn_t spawns[] = {
 #include "savegame/tables/spawnfunc_list.h"
 };
 
-#ifdef TEMPORALCORTEX
-static int g_entinit;
-static const char *the_fucking_stupid_corrupt_pointer;
-#endif
-
 /*
  * Finds the spawn function for
  * the entity and calls it
@@ -108,7 +103,11 @@ ED_NewString(const char *string)
 
 	l = strlen(string) + 1;
 
+#ifdef TEMPORALCORTEX
+	newb = malloc(l);
+#else
 	newb = gi.TagMalloc(l, TAG_LEVEL);
+#endif
 
 	new_p = newb;
 
@@ -321,7 +320,7 @@ G_FindTeams(void)
 		c2++;
 
 #ifdef TEMPORALCORTEX
-		for (j = i + globals.num_loaded_bsps, e2 = e + globals.num_loaded_bsps; j < globals.num_edicts; j++, e2++)
+		for (j = i + globals.num_loaded_bsps, e2 = e + 1; j < globals.num_edicts; j++, e2++)
 #else
 		for (j = i + 1, e2 = e + 1; j < globals.num_edicts; j++, e2++)
 #endif
@@ -355,17 +354,13 @@ G_FindTeams(void)
 	gi.dprintf("%i teams with %i entities.\n", c, c2);
 }
 
-#ifdef TEMPORALCORTEX
-static int bspcount;
-#endif
-
 /*
  * Creates a server's entity / program execution context by
  * parsing textual entity definitions out of an ent file.
  */
 void
 #ifdef TEMPORALCORTEX
-SpawnEntities(const char *mapname, char *entities, const char *spawnpoint, short timeperiod)
+SpawnEntities(const char *mapname, char *entities, const char *spawnpoint, short edictnum, short bspnum)
 #else
 SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 #endif
@@ -377,9 +372,9 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 	float skill_level;
 
 #ifdef TEMPORALCORTEX
-	if (bspcount >= globals.num_loaded_bsps + 1)
+	if (g_bspcount >= globals.num_loaded_bsps + 1)
 	{
-		bspcount = 0;
+		g_bspcount = 0;
 		g_entinit = false;
 	}
 #endif
@@ -454,10 +449,8 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 		if (!ent)
 		{
 #ifdef TEMPORALCORTEX
-			ent = &g_edicts[bspcount];
-			ent->s.number = bspcount;
-
-			bspcount++;
+			ent = &g_edicts[edictnum];
+			G_InitEdict(ent);
 #else
 			ent = g_edicts;
 #endif
@@ -467,11 +460,11 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 			ent = G_Spawn();
 		}
 
-		entities = ED_ParseEdict(entities, ent);
-
 #ifdef TEMPORALCORTEX
-		ent->bspnum = timeperiod;
+		ent->bspnum = bspnum;
 #endif
+
+		entities = ED_ParseEdict(entities, ent);
 
 		/* yet another map hack */
 		if (!Q_stricmp(level.mapname, "command") &&
@@ -484,7 +477,7 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 		/* remove things (except the world) from
 		   different skill levels or deathmatch */
 #ifdef TEMPORALCORTEX
-		if (ent > &g_edicts[globals.num_loaded_bsps])
+		if (ent >= &g_edicts[globals.num_loaded_bsps])
 #else
 		if (ent != g_edicts)
 #endif
@@ -522,9 +515,6 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 		}
 
 		ED_CallSpawn(ent);
-
-		if (!strncmp(ent->classname, "info_player_start", 17))
-			the_fucking_stupid_corrupt_pointer = ent->classname;
 	}
 
 	/* in case the last entity in the entstring has spawntemp fields */
@@ -532,9 +522,16 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 
 	gi.dprintf("%i entities inhibited.\n", inhibit);
 
-	G_FindTeams();
+#ifdef TEMPORALCORTEX
+	if (g_bspcount == 1)
+	{
+#endif
+		G_FindTeams();
 
-	PlayerTrail_Init();
+		PlayerTrail_Init();
+#ifdef TEMPORALCORTEX
+	}
+#endif
 }
 
 /* =================================================================== */
@@ -697,16 +694,22 @@ SP_worldspawn(edict_t *ent)
 	ent->movetype = MOVETYPE_PUSH;
 	ent->solid = SOLID_BSP;
 	ent->inuse = true; /* since the world doesn't use G_Spawn() */
-#ifndef TEMPORALCORTEX
+#ifdef TEMPORALCORTEX
+	ent->s.modelindex = ++g_bspcount; /* world model is always index 1 */
+#else
 	ent->s.modelindex = 1; /* world model is always index 1 */
 #endif
 
 	/* --------------- */
 
+#ifdef TEMPORALCORTEX
+	if (g_bspcount == 1)
+	{
+#else
 	/* reserve some spots for dead
 	   player bodies for coop / deathmatch */
 	InitBodyQue();
-
+#endif
 	/* set configstrings for items */
 	SetItemNames();
 
@@ -905,4 +908,13 @@ SP_worldspawn(edict_t *ent)
 
 	/* 63 testing */
 	gi.configstring(CS_LIGHTS + 63, "a");
+#ifdef TEMPORALCORTEX
+	}
+	else if (g_bspcount == globals.num_loaded_bsps)
+	{
+		/* reserve some spots for dead
+		 player bodi*es for coop / deathmatch */
+		InitBodyQue();
+	}
+#endif
 }

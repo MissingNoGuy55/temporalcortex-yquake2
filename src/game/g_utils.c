@@ -28,6 +28,11 @@
 
 #define MAXCHOICES 8
 
+#ifdef TEMPORALCORTEX
+edict_t* corrupt_pointer;
+int g_bspcount;
+#endif
+
 void
 G_ProjectSource(const vec3_t point, const vec3_t distance, const vec3_t forward,
 		const vec3_t right, vec3_t result)
@@ -490,7 +495,11 @@ G_CopyString(const char *in)
 		return NULL;
 	}
 
+#ifdef TEMPORALCORTEX
+	out = malloc(strlen(in) + 1);
+#else
 	out = gi.TagMalloc(strlen(in) + 1, TAG_LEVEL);
+#endif
 	strcpy(out, in);
 	return out;
 }
@@ -527,7 +536,7 @@ G_FindFreeEdict(int policy)
 	edict_t *e;
 
 #ifdef TEMPORALCORTEX
-	for (e = g_edicts + game.maxclients + globals.num_loaded_bsps - globals.num_unloaded_bsps ; e < &g_edicts[globals.num_edicts] ; e++)
+	for (e = g_edicts + game.maxclients + globals.num_loaded_bsps ; e < &g_edicts[globals.num_edicts] ; e++)
 #else
 	for (e = g_edicts + game.maxclients + 1 ; e < &g_edicts[globals.num_edicts] ; e++)
 #endif
@@ -595,14 +604,14 @@ G_FreeEdict(edict_t *ed)
 #ifdef TEMPORALCORTEX
 	if (deathmatch->value || coop->value)
 	{
-		if ((ed - g_edicts) <= (maxclients->value + BODY_QUEUE_SIZE) + globals.num_loaded_bsps - 1)
+		if ((ed - g_edicts) <= (maxclients->value + globals.num_loaded_bsps) + BODY_QUEUE_SIZE)
 		{
 			return;
 		}
 	}
 	else
 	{
-		if ((ed - g_edicts) <= maxclients->value + globals.num_loaded_bsps - 1)
+		if ((ed - g_edicts) <= maxclients->value + globals.num_loaded_bsps)
 		{
 			return;
 		}
@@ -730,8 +739,13 @@ KillBox(edict_t *ent)
 
 	while (1)
 	{
+#ifdef TEMPORALCORTEX
 		tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, ent->s.origin,
-				NULL, MASK_PLAYERSOLID);
+				NULL, MASK_PLAYERSOLID, globals.current_bsp_index);
+#else
+		tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, ent->s.origin,
+					  NULL, MASK_PLAYERSOLID);
+#endif
 
 		if (!tr.ent)
 		{

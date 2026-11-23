@@ -711,7 +711,11 @@ typedef struct
 
 	/* callbacks to test the world */
 	trace_t (*trace)(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end);
+#ifdef TEMPORALCORTEX
+	int (*pointcontents)(const vec3_t point, short bspnum);
+#else
 	int (*pointcontents)(const vec3_t point);
+#endif
 } pmove_t;
 
 /* entity_state_t->effects

@@ -67,7 +67,7 @@ AI_SetSightClient(void)
 		check++;
 
 #ifdef TEMPORALCORTEX
-		if (check > game.maxclients + globals.num_loaded_bsps - globals.num_unloaded_bsps)
+		if (check > game.maxclients + globals.num_loaded_bsps)
 #else
 		if (check > game.maxclients)
 #endif
@@ -360,7 +360,12 @@ visible(const edict_t *self, const edict_t *other)
 	spot1[2] += self->viewheight;
 	VectorCopy(other->s.origin, spot2);
 	spot2[2] += other->viewheight;
+
+#ifdef TEMPORALCORTEX
+	trace = gi.trace(spot1, vec3_origin, vec3_origin, spot2, self, MASK_OPAQUE, self->bspnum);
+#else
 	trace = gi.trace(spot1, vec3_origin, vec3_origin, spot2, self, MASK_OPAQUE);
+#endif
 
 	if (trace.fraction == 1.0)
 	{
@@ -770,9 +775,15 @@ M_CheckAttack(edict_t *self)
 		VectorCopy(self->enemy->s.origin, spot2);
 		spot2[2] += self->enemy->viewheight;
 
+#ifdef TEMPORALCORTEX
 		tr = gi.trace(spot1, NULL, NULL, spot2, self,
 				CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_SLIME |
-				CONTENTS_LAVA | CONTENTS_WINDOW);
+				CONTENTS_LAVA | CONTENTS_WINDOW, self->bspnum);
+#else
+		tr = gi.trace(spot1, NULL, NULL, spot2, self,
+					  CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_SLIME |
+					  CONTENTS_LAVA | CONTENTS_WINDOW);
+#endif
 
 		/* do we have a clear shot? */
 		if (tr.ent != self->enemy)
@@ -1276,9 +1287,15 @@ ai_run(edict_t *self, float dist)
 
 	if (new)
 	{
+#ifdef TEMPORALCORTEX
 		tr = gi.trace(self->s.origin, self->mins, self->maxs,
 				self->monsterinfo.last_sighting, self,
+				MASK_PLAYERSOLID, self->bspnum);
+#else
+		tr = gi.trace(self->s.origin, self->mins, self->maxs,
+					  self->monsterinfo.last_sighting, self,
 				MASK_PLAYERSOLID);
+#endif
 
 		if (tr.fraction < 1)
 		{
@@ -1290,15 +1307,28 @@ ai_run(edict_t *self, float dist)
 			AngleVectors(self->s.angles, v_forward, v_right, NULL);
 
 			VectorSet(v, d2, -16, 0);
+
+#ifdef TEMPORALCORTEX
 			G_ProjectSource(self->s.origin, v, v_forward, v_right, left_target);
 			tr = gi.trace(self->s.origin, self->mins, self->maxs, left_target,
-					self, MASK_PLAYERSOLID);
+					self, MASK_PLAYERSOLID, self->bspnum);
 			left = tr.fraction;
 
 			VectorSet(v, d2, 16, 0);
 			G_ProjectSource(self->s.origin, v, v_forward, v_right, right_target);
 			tr = gi.trace(self->s.origin, self->mins, self->maxs, right_target,
-					self, MASK_PLAYERSOLID);
+					self, MASK_PLAYERSOLID, self->bspnum);
+#else
+			G_ProjectSource(self->s.origin, v, v_forward, v_right, left_target);
+			tr = gi.trace(self->s.origin, self->mins, self->maxs, left_target,
+						  self, MASK_PLAYERSOLID);
+			left = tr.fraction;
+
+			VectorSet(v, d2, 16, 0);
+			G_ProjectSource(self->s.origin, v, v_forward, v_right, right_target);
+			tr = gi.trace(self->s.origin, self->mins, self->maxs, right_target,
+						  self, MASK_PLAYERSOLID);
+#endif
 			right = tr.fraction;
 
 			center = (d1 * center) / d2;

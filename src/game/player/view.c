@@ -520,7 +520,11 @@ SV_CalcBlend(edict_t *ent)
 
 	/* add for contents */
 	VectorAdd(ent->s.origin, ent->client->ps.viewoffset, vieworg);
+#ifdef TEMPORALCORTEX
+	contents = gi.pointcontents(vieworg, ent->bspnum);
+#else
 	contents = gi.pointcontents(vieworg);
+#endif
 
 	if (contents & (CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER))
 	{

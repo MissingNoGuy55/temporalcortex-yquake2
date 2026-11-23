@@ -47,8 +47,13 @@ CanDamage(edict_t *targ, edict_t *inflictor)
 	{
 		VectorAdd(targ->absmin, targ->absmax, dest);
 		VectorScale(dest, 0.5, dest);
+#ifdef TEMPORALCORTEX
 		trace = gi.trace(inflictor->s.origin, vec3_origin, vec3_origin,
-				dest, inflictor, MASK_SOLID);
+				dest, inflictor, MASK_SOLID, inflictor->bspnum);
+#else
+		trace = gi.trace(inflictor->s.origin, vec3_origin, vec3_origin,
+						 dest, inflictor, MASK_SOLID);
+#endif
 
 		if (trace.fraction == 1.0)
 		{
@@ -62,9 +67,13 @@ CanDamage(edict_t *targ, edict_t *inflictor)
 
 		return false;
 	}
-
+#ifdef TEMPORALCORTEX
 	trace = gi.trace(inflictor->s.origin, vec3_origin, vec3_origin,
-			targ->s.origin, inflictor, MASK_SOLID);
+			targ->s.origin, inflictor, MASK_SOLID, inflictor->bspnum);
+#else
+	trace = gi.trace(inflictor->s.origin, vec3_origin, vec3_origin,
+					 targ->s.origin, inflictor, MASK_SOLID);
+#endif
 
 	if (trace.fraction == 1.0)
 	{
@@ -74,9 +83,13 @@ CanDamage(edict_t *targ, edict_t *inflictor)
 	VectorCopy(targ->s.origin, dest);
 	dest[0] += 15.0;
 	dest[1] += 15.0;
+#ifdef TEMPORALCORTEX
 	trace = gi.trace(inflictor->s.origin, vec3_origin, vec3_origin,
-			dest, inflictor, MASK_SOLID);
-
+			dest, inflictor, MASK_SOLID, inflictor->bspnum);
+#else
+	trace = gi.trace(inflictor->s.origin, vec3_origin, vec3_origin,
+					 dest, inflictor, MASK_SOLID);
+#endif
 	if (trace.fraction == 1.0)
 	{
 		return true;
@@ -85,9 +98,13 @@ CanDamage(edict_t *targ, edict_t *inflictor)
 	VectorCopy(targ->s.origin, dest);
 	dest[0] += 15.0;
 	dest[1] -= 15.0;
+#ifdef TEMPORALCORTEX
 	trace = gi.trace(inflictor->s.origin, vec3_origin, vec3_origin,
-			dest, inflictor, MASK_SOLID);
-
+			dest, inflictor, MASK_SOLID, inflictor->bspnum);
+#else
+	trace = gi.trace(inflictor->s.origin, vec3_origin, vec3_origin,
+					 dest, inflictor, MASK_SOLID);
+#endif
 	if (trace.fraction == 1.0)
 	{
 		return true;
@@ -96,9 +113,13 @@ CanDamage(edict_t *targ, edict_t *inflictor)
 	VectorCopy(targ->s.origin, dest);
 	dest[0] -= 15.0;
 	dest[1] += 15.0;
+#ifdef TEMPORALCORTEX
 	trace = gi.trace(inflictor->s.origin, vec3_origin, vec3_origin,
-			dest, inflictor, MASK_SOLID);
-
+			dest, inflictor, MASK_SOLID, inflictor->bspnum);
+#else
+	trace = gi.trace(inflictor->s.origin, vec3_origin, vec3_origin,
+					 dest, inflictor, MASK_SOLID);
+#endif
 	if (trace.fraction == 1.0)
 	{
 		return true;
@@ -107,9 +128,13 @@ CanDamage(edict_t *targ, edict_t *inflictor)
 	VectorCopy(targ->s.origin, dest);
 	dest[0] -= 15.0;
 	dest[1] -= 15.0;
+#ifdef TEMPORALCORTEX
 	trace = gi.trace(inflictor->s.origin, vec3_origin, vec3_origin,
-			dest, inflictor, MASK_SOLID);
-
+			dest, inflictor, MASK_SOLID, inflictor->bspnum);
+#else
+	trace = gi.trace(inflictor->s.origin, vec3_origin, vec3_origin,
+					 dest, inflictor, MASK_SOLID);
+#endif
 	if (trace.fraction == 1.0)
 	{
 		return true;

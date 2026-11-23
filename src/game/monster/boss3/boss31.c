@@ -788,11 +788,15 @@ Jorg_CheckAttack(edict_t *self)
 		spot1[2] += self->viewheight;
 		VectorCopy(self->enemy->s.origin, spot2);
 		spot2[2] += self->enemy->viewheight;
-
+#ifdef TEMPORALCORTEX
+		tr = gi.trace( spot1, NULL, NULL, spot2, self,
+				CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_SLIME |
+				CONTENTS_LAVA, self->bspnum);
+#else
 		tr = gi.trace( spot1, NULL, NULL, spot2, self,
 				CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_SLIME |
 				CONTENTS_LAVA);
-
+#endif
 		/* do we have a clear shot? */
 		if (tr.ent != self->enemy)
 		{

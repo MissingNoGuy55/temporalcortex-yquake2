@@ -1335,8 +1335,13 @@ Drop_Item(edict_t *ent, const gitem_t *item)
 		VectorSet(offset, 24, 0, -16);
 		G_ProjectSource(ent->s.origin, offset, forward, right,
 				dropped->s.origin);
+#ifdef TEMPORALCORTEX
 		trace = gi.trace(ent->s.origin, dropped->mins, dropped->maxs,
-				dropped->s.origin, ent, CONTENTS_SOLID);
+				dropped->s.origin, ent, CONTENTS_SOLID, ent->bspnum);
+#else
+		trace = gi.trace(ent->s.origin, dropped->mins, dropped->maxs,
+						 dropped->s.origin, ent, CONTENTS_SOLID);
+#endif
 		VectorCopy(trace.endpos, dropped->s.origin);
 	}
 	else
@@ -1415,9 +1420,11 @@ droptofloor(edict_t *ent)
 
 	v = tv(0, 0, -128);
 	VectorAdd(ent->s.origin, v, dest);
-
+#ifdef TEMPORALCORTEX
+	tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, dest, ent, MASK_SOLID, ent->bspnum);
+#else
 	tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, dest, ent, MASK_SOLID);
-
+#endif
 	if (tr.startsolid)
 	{
 		gi.dprintf("%s: %s startsolid at %s\n",

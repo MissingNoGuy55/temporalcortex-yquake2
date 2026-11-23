@@ -303,11 +303,19 @@ InitAllocations(void)
 		gi.cvar_forceset("maxclients", "1");
 	}
 
-	if (num_e < (num_c + 1))
+#ifdef TEMPORALCORTEX
+	if (num_e < (num_c + globals.num_loaded_bsps))
 	{
-		num_e = num_c + 1;
-		gi.cvar_forceset("maxentities", va("%d", num_c + 1));
+		num_e = num_c + globals.num_loaded_bsps;
+		gi.cvar_forceset("maxentities", va("%d", num_c + globals.num_loaded_bsps));
 	}
+#else
+if (num_e < (num_c + 1))
+{
+	num_e = num_c + 1;
+	gi.cvar_forceset("maxentities", va("%d", num_c + 1));
+}
+#endif
 
 	g_edicts = gi.TagMalloc (num_e * sizeof(g_edicts[0]), TAG_GAME);
 	game.maxentities = num_e;

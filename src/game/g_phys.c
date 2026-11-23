@@ -73,10 +73,13 @@ SV_TestEntityPosition(edict_t *ent)
 	{
 		mask = MASK_SOLID;
 	}
-
+#ifdef TEMPORALCORTEX
+	trace = gi.trace(ent->s.origin, ent->mins, ent->maxs,
+			ent->s.origin, ent, mask, ent->bspnum);
+#else
 	trace = gi.trace(ent->s.origin, ent->mins, ent->maxs,
 			ent->s.origin, ent, mask);
-
+#endif
 	if (trace.startsolid)
 	{
 		return g_edicts;
@@ -251,9 +254,11 @@ SV_FlyMove(edict_t *ent, float time, int mask)
 		{
 			end[i] = ent->s.origin[i] + time_left * ent->velocity[i];
 		}
-
+#ifdef TEMPORALCORTEX
+		trace = gi.trace(ent->s.origin, ent->mins, ent->maxs, end, ent, mask, ent->bspnum);
+#else
 		trace = gi.trace(ent->s.origin, ent->mins, ent->maxs, end, ent, mask);
-
+#endif
 		if (trace.allsolid)
 		{
 			/* entity is trapped in another solid */
@@ -524,9 +529,11 @@ retry:
 	{
 		mask = MASK_SOLID;
 	}
-
+#ifdef TEMPORALCORTEX
+	trace = gi.trace(start, ent->mins, ent->maxs, end, ent, mask, ent->bspnum);
+#else
 	trace = gi.trace(start, ent->mins, ent->maxs, end, ent, mask);
-
+#endif
 	/* startsolid treats different-content volumes
 	   as continuous, like the bbox of a monster/player
 	   and the floor of an elevator. So do another trace
@@ -535,7 +542,11 @@ retry:
 	*/
 	if (trace.startsolid && (mask & ~MASK_SOLID))
 	{
-		trace = gi.trace (start, ent->mins, ent->maxs, end, ent, MASK_SOLID);
+#ifdef TEMPORALCORTEX
+		trace = gi.trace (start, ent->mins, ent->maxs, end, ent, MASK_SOLID, ent->bspnum);
+#else
+		trace = gi.trace(start, ent->mins, ent->maxs, end, ent, mask);
+#endif
 	}
 
 	VectorCopy(trace.endpos, ent->s.origin);
@@ -1031,7 +1042,11 @@ SV_Physics_Toss(edict_t *ent)
 
 	/* check for water transition */
 	wasinwater = (ent->watertype & MASK_WATER);
+#ifdef TEMPORALCORTEX
+	ent->watertype = gi.pointcontents(ent->s.origin, ent->bspnum);
+#else
 	ent->watertype = gi.pointcontents(ent->s.origin);
+#endif
 	isinwater = ent->watertype & MASK_WATER;
 
 	if (isinwater)
@@ -1263,8 +1278,11 @@ SV_Physics_Step(edict_t *ent)
 		   move. */
 		if (!VectorCompare(ent->s.origin, oldorig))
 		{
+#ifdef TEMPORALCORTEX
+			tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, ent->s.origin, ent, mask, ent->bspnum);
+#else
 			tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, ent->s.origin, ent, mask);
-
+#endif
 			if (tr.startsolid)
 			{
 				VectorCopy(oldorig, ent->s.origin);
