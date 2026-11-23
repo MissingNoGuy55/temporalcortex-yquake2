@@ -516,6 +516,9 @@ G_InitEdict(edict_t *e)
 	e->classname = "noclass";
 	e->gravity = 1.0;
 	e->s.number = e - g_edicts;
+#ifdef TEMPORALCORTEX
+	e->bspnum = globals.current_bsp_index;
+#endif
 }
 
 /*

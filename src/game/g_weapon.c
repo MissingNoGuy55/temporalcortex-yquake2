@@ -524,7 +524,7 @@ fire_blaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		check_dodge(self, bolt->s.origin, dir, speed);
 	}
 #ifdef TEMPORALCORTEX
-	tr = gi.trace(self->s.origin, NULL, NULL, bolt->s.origin, bolt, MASK_SHOT, self->bspnum);
+	tr = gi.trace(self->s.origin, NULL, NULL, bolt->s.origin, bolt, MASK_SHOT, bolt->bspnum);
 #else
 	tr = gi.trace(self->s.origin, NULL, NULL, bolt->s.origin, bolt, MASK_SHOT);
 #endif
